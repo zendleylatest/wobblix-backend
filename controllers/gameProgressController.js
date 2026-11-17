@@ -17,15 +17,15 @@ function view(record) {
 
 /**
  * Paid unlocks come from verified purchases only: whatever the app sends for
- * m.plus / m.removeAds / m.starter is replaced by what the player really owns
- * (plus implies removeAds).
+ * m.removeAds / m.starter is replaced by what the player really owns
  */
 async function withRealEntitlements(userId, progress) {
   if (!isObj(progress)) return progress;
   const owned = await entitlementsFor(userId);
   if (progress.v !== 1) return progress;
   const m = isObj(progress.m) ? progress.m : {};
-  return { ...progress, m: { ...m, plus: owned.plus, removeAds: owned.removeAds, starter: owned.starter } };
+  const { plus: _legacyPlus, ...rest } = m;
+  return { ...progress, m: { ...rest, removeAds: owned.removeAds, starter: owned.starter } };
 }
 
 async function getGameProgress(req, res) {

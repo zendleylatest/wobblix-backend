@@ -52,18 +52,18 @@ nano .env
 Add the required environment variables for the project, for example:
 
 ```ini
-PORT=5968
+PORT=5970
 OPENAI_API_KEY=your-openai-api-key
 ADMIN_TOKEN=your-admin-token
 ```
 
 Save with:
 
-| Keys | Action |
-| --- | --- |
-| `Ctrl + O` | Write the file |
-| `Enter` | Confirm the file name |
-| `Ctrl + X` | Exit nano |
+| Keys         | Action                |
+| ------------ | --------------------- |
+| `Ctrl + O` | Write the file        |
+| `Enter`    | Confirm the file name |
+| `Ctrl + X` | Exit nano             |
 
 ---
 
@@ -78,7 +78,7 @@ npm start
 Test it:
 
 ```bash
-curl http://127.0.0.1:5968/health
+curl http://127.0.0.1:5970/health
 ```
 
 If it works, stop the server with `Ctrl + C`.
@@ -94,7 +94,7 @@ sudo npm install -g pm2
 Start the application:
 
 ```bash
-pm2 start npm --name gridbloom-backend -- start
+pm2 start npm --name wobblix-backend -- start
 ```
 
 Check:
@@ -137,7 +137,7 @@ sudo apt install -y nginx
 Create the configuration:
 
 ```bash
-sudo nano /etc/nginx/sites-available/gridbloom-backend
+sudo nano /etc/nginx/sites-available/wobblix-backend
 ```
 
 Add:
@@ -147,10 +147,10 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name gridbloombackend.oxmite.com;
+    server_name wobblixbackend.oxmite.com;
 
     location / {
-        proxy_pass http://127.0.0.1:5968;
+        proxy_pass http://127.0.0.1:5970;
 
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -166,7 +166,7 @@ Save and exit.
 Enable the site:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/gridbloom-backend /etc/nginx/sites-enabled/gridbloom-backend
+sudo ln -s /etc/nginx/sites-available/wobblix-backend /etc/nginx/sites-enabled/wobblix-backend
 ```
 
 Test Nginx:
@@ -187,16 +187,16 @@ sudo systemctl reload nginx
 
 Create an **A record**:
 
-| Field | Value |
-| --- | --- |
-| Type | `A` |
-| Host | `gridbloombackend` |
-| Value | `YOUR_SERVER_IP` |
+| Field | Value                |
+| ----- | -------------------- |
+| Type  | `A`                |
+| Host  | `gridbloombackend` |
+| Value | `YOUR_SERVER_IP`   |
 
 Verify:
 
 ```bash
-dig +short gridbloombackend.oxmite.com
+dig +short wobblixbackend.oxmite.com
 ```
 
 It should return your server IP.
@@ -214,7 +214,7 @@ sudo apt install -y certbot python3-certbot-nginx
 ## 12. Enable HTTPS
 
 ```bash
-sudo certbot --nginx -d gridbloombackend.oxmite.com
+sudo certbot --nginx -d wobblixbackend.oxmite.com
 ```
 
 Follow the prompts and select the option to redirect HTTP to HTTPS if asked.
@@ -224,7 +224,7 @@ Follow the prompts and select the option to redirect HTTP to HTTPS if asked.
 ## 13. Test HTTPS
 
 ```bash
-curl https://gridbloombackend.oxmite.com/health
+curl https://wobblixbackend.oxmite.com/health
 ```
 
 ---

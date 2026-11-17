@@ -32,8 +32,8 @@ require.cache[modelPath] = {
     deleteOne: async (q) => store.delete(String(q.userId)),
   },
 };
-// Verified purchases decide plus / removeAds / starter (stubbed: no database).
-const owned = { plus: false, removeAds: false, starter: false };
+// Verified purchases decide removeAds / starter (stubbed: no database).
+const owned = { removeAds: false, starter: false };
 const entPath = require.resolve("../services/entitlementService");
 require.cache[entPath] = { id: entPath, filename: entPath, loaded: true, exports: { entitlementsFor: async () => ({ ...owned }) } };
 const { getGameProgress, saveGameProgress, deleteGameProgress } = require("../controllers/gameProgressController");
@@ -60,7 +60,7 @@ const base = () => ({
   stats: { deaths: 0, jumps: 0, completions: 0 },
   cos: { color: "mint", face: "smile", hat: "none", adUnlocked: [] },
   set: { sfx: true },
-  m: { sparks: 100, spent: 0, adsWatched: 0, plus: false, removeAds: false, starter: false, owned: [], cosOwned: [], solutions: [], tx: [] },
+  m: { sparks: 100, spent: 0, adsWatched: 0, removeAds: false, starter: false, owned: [], cosOwned: [], solutions: [], tx: [] },
 });
 const withM = (over) => ({ ...base(), m: { ...base().m, ...over } });
 
@@ -154,12 +154,11 @@ test("progressScore weights stars, levels, completions, achievements and dailies
 });
 
 test("merge: sparks come from the base copy, never max'd; flags OR; lists union", () => {
-  const ahead = { ...base(), done: { l1: lvl(10, [true, true, true], "gold") }, m: { ...base().m, sparks: 20, spent: 300, owned: ["o1"], tx: ["t1"], plus: true } };
+  const ahead = { ...base(), done: { l1: lvl(10, [true, true, true], "gold") }, m: { ...base().m, sparks: 20, spent: 300, owned: ["o1"], tx: ["t1"], removeAds: true } };
   const behind = { ...base(), m: { ...base().m, sparks: 900, spent: 0, owned: ["o2"], cosOwned: ["c1"], solutions: ["l1"], tx: ["t2"], starter: true, adsWatched: 4 } };
   const m = mergeProgress(behind, ahead).m;
   assert.equal(m.sparks, 20);
   assert.equal(m.spent, 300);
-  assert.equal(m.plus, true);
   assert.equal(m.removeAds, true);
   assert.equal(m.starter, true);
   assert.equal(m.adsWatched, 4);
@@ -196,18 +195,16 @@ test("validateProgress and mergeSave", () => {
   assert.equal(mergeSave({ a: 1 }, { b: 2 }, true).a, 1);
 });
 
-test("plus / removeAds / starter come from verified purchases, never from the app", async () => {
+test("removeAds / starter come from verified purchases, never from the app", async () => {
   store.clear();
-  Object.assign(owned, { plus: false, removeAds: false, starter: false });
-  const cheat = withM({ plus: true, removeAds: true, starter: true });
+  Object.assign(owned, { removeAds: false, starter: false });
+  const cheat = withM({ removeAds: true, starter: true });
   const r = await call(saveGameProgress, "u1", { progress: cheat, baseRevision: 0 });
-  assert.equal(r.body.progress.m.plus, false);
   assert.equal(r.body.progress.m.removeAds, false);
   assert.equal(r.body.progress.m.starter, false);
-  Object.assign(owned, { plus: true, removeAds: true });
+  Object.assign(owned, { removeAds: true });
   const got = (await call(getGameProgress, "u1")).body.progress.m;
-  assert.equal(got.plus, true);
   assert.equal(got.removeAds, true);
   assert.equal(got.starter, false);
-  Object.assign(owned, { plus: false, removeAds: false });
+  Object.assign(owned, { removeAds: false });
 });

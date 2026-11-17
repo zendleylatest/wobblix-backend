@@ -79,7 +79,7 @@ function fakeDeps(state = {}) {
 
 test("catalog: one-time products only", () => {
   const { CATALOG } = require("../services/storeCatalog");
-  assert.deepEqual(Object.keys(CATALOG).sort(), ["plus", "remove_ads", "sparks_1800", "sparks_300", "sparks_4000", "starter_pack"]);
+  assert.deepEqual(Object.keys(CATALOG).sort(), ["remove_ads", "sparks_1800", "sparks_300", "sparks_4000", "starter_pack"]);
   assert.ok(Object.values(CATALOG).every((p) => p.kind === "entitlement" || p.kind === "consumable"));
 });
 
@@ -139,19 +139,15 @@ test("unlocks become entitlements and follow the store account", async () => {
   reset();
   c.hooks.verifyDeps = fakeDeps();
   c.hooks.acknowledge = async () => true;
-  const r = await call(c.verifyPurchase, { authUser: user("a"), body: { platform: "android", productId: "plus", purchaseToken: "tokP" } });
-  assert.equal(r.body.plus, true);
-  assert.equal(r.body.removeAds, true); // plus implies removeAds
-  assert.equal(r.body.starter, false);
   const r2 = await call(c.verifyPurchase, { authUser: user("a"), body: { platform: "android", productId: "remove_ads", purchaseToken: "tokR" } });
   assert.equal(r2.body.removeAds, true);
   const r3 = await call(c.verifyPurchase, { authUser: user("a"), body: { platform: "android", productId: "starter_pack", purchaseToken: "tokS" } });
   assert.equal(r3.body.starter, true);
-  assert.equal((await entitlementsFor("a")).plus, true);
+  assert.equal((await entitlementsFor("a")).removeAds, true);
   // Restoring on a new profile moves the unlock there.
-  const moved = await call(c.verifyPurchase, { authUser: user("b"), body: { platform: "android", productId: "plus", purchaseToken: "tokP" } });
-  assert.equal(moved.body.plus, true);
-  assert.equal((await entitlementsFor("a")).plus, false);
+  const moved = await call(c.verifyPurchase, { authUser: user("b"), body: { platform: "android", productId: "remove_ads", purchaseToken: "tokR" } });
+  assert.equal(moved.body.removeAds, true);
+  assert.equal((await entitlementsFor("a")).removeAds, false);
 });
 
 test("an unreachable store is retryable, not a refusal", async () => {
@@ -192,22 +188,20 @@ test("sparks packs in the catalog credit the documented amounts", () => {
   assert.equal(CATALOG.sparks_300.sparks, 300);
   assert.equal(CATALOG.sparks_1800.sparks, 1800);
   assert.equal(CATALOG.sparks_4000.sparks, 4000);
-  assert.equal(CATALOG.plus.entitlement, "plus");
+  assert.equal(CATALOG.plus, undefined); // Plus is not sold
+  assert.equal(productFor("plus"), null);
   assert.equal(productFor("constructor"), null);
   assert.equal(productFor("gems_40"), null);
 });
 
-test("removeAds alone does not grant plus; a refunded plus drops its implied removeAds", async () => {
+test("a refunded Remove Ads is dropped at the next re-check", async () => {
   reset();
   const deps = fakeDeps();
   c.hooks.verifyDeps = deps;
   c.hooks.acknowledge = async () => true;
   await call(c.verifyPurchase, { authUser: user("a"), body: { platform: "android", productId: "remove_ads", purchaseToken: "tokR2" } });
-  assert.deepEqual(await entitlementsFor("a"), { plus: false, removeAds: true, starter: false });
-  reset();
-  await call(c.verifyPurchase, { authUser: user("a"), body: { platform: "android", productId: "plus", purchaseToken: "tokP2" } });
-  assert.deepEqual(await entitlementsFor("a"), { plus: true, removeAds: true, starter: false });
+  assert.deepEqual(await entitlementsFor("a"), { removeAds: true, starter: false });
   rows[0].token = "refunded";
   await refreshStaleEntitlements("a", { now: Date.now() + 2 * 24 * 3600 * 1000, deps });
-  assert.deepEqual(await entitlementsFor("a"), { plus: false, removeAds: false, starter: false });
+  assert.deepEqual(await entitlementsFor("a"), { removeAds: false, starter: false });
 });

@@ -5,7 +5,7 @@
 // service is involved — this speaks directly to Apple's JWKS endpoint.
 //
 // Required env vars:
-//   APPLE_BUNDLE_ID — your iOS bundle ID (e.g. com.speckpro.gridbloomgame.ios)
+//   APPLE_BUNDLE_ID — your iOS bundle ID (e.g. com.speckpro.wobblixgame.app)
 
 const crypto = require("crypto");
 const { methodConflict } = require("./authProviders");

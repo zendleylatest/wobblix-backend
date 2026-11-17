@@ -203,7 +203,7 @@ function readAndroidIdentity(body) {
   const androidId = normalizeAndroidId(body?.androidId);
   const sentHash = normalizeAndroidIdHash(body?.androidIdHash);
   if (!androidId) return { androidId: null, androidIdHash: sentHash };
-  const packageName = process.env.ANDROID_PACKAGE_NAME || "com.speckpro.wobblixgame";
+  const packageName = process.env.ANDROID_PACKAGE_NAME || "com.speckpro.wobblixgame.app";
   const calculatedHash = crypto
     .createHash("sha256")
     .update(`${packageName}:${androidId}`)

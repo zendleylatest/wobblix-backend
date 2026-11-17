@@ -19,7 +19,7 @@ function getReminderMessaging() {
   return admin ? admin.messaging() : null;
 }
 
-const ANDROID_PACKAGE = process.env.ANDROID_PACKAGE_NAME || "com.speckpro.gridbloomgame.android";
+const ANDROID_PACKAGE = process.env.ANDROID_PACKAGE_NAME || "com.speckpro.wobblixgame.app";
 
 const INVALID_TOKEN_CODES = new Set([
   "messaging/registration-token-not-registered",

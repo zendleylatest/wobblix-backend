@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 /**
  * A verified one-time store purchase (no subscriptions in Wobblix).
- *  - entitlement products (Plus, Remove Ads, Starter Pack) stay
+ *  - entitlement products (Remove Ads, Starter Pack) stay
  *    active until the store refunds them;
  *  - consumable products (sparks) are granted once: [claimedAt] is set when
  *    the app has credited them.
@@ -16,7 +16,7 @@ const purchaseSchema = new mongoose.Schema(
     platform: { type: String, enum: ["android", "ios", "amazon"], required: true },
     productId: { type: String, required: true },
     kind: { type: String, enum: ["entitlement", "consumable"], required: true },
-    entitlement: { type: String, default: null }, // "plus" | "removeAds" | "starter"
+    entitlement: { type: String, default: null }, // "removeAds" | "starter"
     sparks: { type: Number, default: 0 },
     gems: { type: Number, default: 0 }, // legacy (pre-Wobblix rows); read-only
     status: { type: String, enum: ["active", "revoked"], default: "active", index: true },

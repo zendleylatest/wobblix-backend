@@ -13,7 +13,7 @@ async function entitlementsFor(userId) {
     owned.add(r.entitlement);
     for (const extra of IMPLIED[r.entitlement] || []) owned.add(extra);
   }
-  return { plus: owned.has("plus"), removeAds: owned.has("removeAds"), starter: owned.has("starter") };
+  return { removeAds: owned.has("removeAds"), starter: owned.has("starter") };
 }
 
 /** Sparks packs bought and verified but not yet credited by the app. */

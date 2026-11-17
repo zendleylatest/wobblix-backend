@@ -4,7 +4,7 @@ const { JWT } = require("google-auth-library");
 
 const GOOGLE_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 const DEFAULT_ANDROID_PACKAGE_NAME =
-  "com.speckpro.gridbloomgame.android";
+  "com.speckpro.wobblixgame.app";
 const AMAZON_RVS_PRODUCTION_URL = "https://appstore-sdk.amazon.com";
 const AMAZON_RVS_SANDBOX_URL = "https://appstore-sdk.amazon.com/sandbox";
 const ACTIVE_V2_STATES = new Set([

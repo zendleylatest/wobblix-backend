@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const jwt = require("jsonwebtoken");
 
-process.env.APPLE_BUNDLE_ID = "com.speckpro.wobblixgame";
+process.env.APPLE_BUNDLE_ID = "com.speckpro.wobblixgame.app";
 
 // ---- in-memory Purchase model ---------------------------------------------------
 const rows = [];
@@ -29,7 +29,7 @@ const { applyWobblixNotification } = require("../controllers/appleNotificationCo
 const signedTx = (over = {}) =>
   jwt.sign(
     {
-      bundleId: "com.speckpro.wobblixgame",
+      bundleId: "com.speckpro.wobblixgame.app",
       productId: "remove_ads",
       transactionId: "2000",
       originalTransactionId: "2000",
@@ -66,7 +66,7 @@ test("the App Store Server API token carries the bundle id", () => {
   const { header, payload } = jwt.decode(token, { complete: true });
   assert.equal(header.alg, "ES256");
   assert.equal(header.kid, "KEY123");
-  assert.equal(payload.bid, "com.speckpro.wobblixgame");
+  assert.equal(payload.bid, "com.speckpro.wobblixgame.app");
   assert.equal(payload.iss, "issuer-1");
   assert.equal(payload.aud, "appstoreconnect-v1");
 });
@@ -98,7 +98,7 @@ test("ios: wrong product, other app and refunds are rejected; outages retry", as
 test("notification: a refund revokes the purchase, a reversal restores it", async () => {
   rows.length = 0;
   const p = addPurchase({ key: "ios:2000", productId: "remove_ads", token: "2000" });
-  const tx = { bundleId: "com.speckpro.wobblixgame", originalTransactionId: "2000" };
+  const tx = { bundleId: "com.speckpro.wobblixgame.app", originalTransactionId: "2000" };
 
   const refund = await applyWobblixNotification("REFUND", tx, appleDeps({ urls: [], tx: { revocationDate: Date.now() } }));
   assert.equal(refund, "handled");
@@ -112,7 +112,7 @@ test("notification: a refund revokes the purchase, a reversal restores it", asyn
 test("notification: a forged refund changes nothing, an outage asks Apple to retry", async () => {
   rows.length = 0;
   const p = addPurchase({ key: "ios:2000", productId: "remove_ads", token: "2000" });
-  const tx = { bundleId: "com.speckpro.wobblixgame", originalTransactionId: "2000" };
+  const tx = { bundleId: "com.speckpro.wobblixgame.app", originalTransactionId: "2000" };
 
   // The payload claims a refund, but Apple says the purchase is fine.
   assert.equal(await applyWobblixNotification("REFUND", tx, appleDeps({ urls: [], tx: {} })), "handled");
@@ -126,6 +126,6 @@ test("notification: other apps and unknown transactions are left alone", async (
   rows.length = 0;
   const deps = appleDeps({ urls: [], tx: {} });
   assert.equal(await applyWobblixNotification("REFUND", { bundleId: "com.other.app", originalTransactionId: "9" }, deps), "unknown");
-  assert.equal(await applyWobblixNotification("REFUND", { bundleId: "com.speckpro.wobblixgame", originalTransactionId: "9" }, deps), "unknown");
+  assert.equal(await applyWobblixNotification("REFUND", { bundleId: "com.speckpro.wobblixgame.app", originalTransactionId: "9" }, deps), "unknown");
   assert.equal(await applyWobblixNotification("TEST", null, deps), "unknown");
 });

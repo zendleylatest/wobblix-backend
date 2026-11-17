@@ -3,7 +3,7 @@ const User = require("../models/usersModel");
 const Purchase = require("../models/purchaseModel");
 const { verifyOneTimePurchase } = require("../services/storePurchaseVerification");
 
-const BUNDLE = () => process.env.APPLE_BUNDLE_ID || "com.speckpro.wobblixgame";
+const BUNDLE = () => process.env.APPLE_BUNDLE_ID || "com.speckpro.wobblixgame.app";
 
 /**
  * Wobblix one-time purchases: Apple tells us a transaction changed (refund,

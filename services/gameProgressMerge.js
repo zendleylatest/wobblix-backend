@@ -8,7 +8,7 @@
  *  { v:1, done:{levelId:{best,stars:[bool],medal}}, ach:{id:unlockMs},
  *    daily:[dateKeys], dailyCount, plays, stats:{deaths,jumps,completions},
  *    cos:{color,face,hat,adUnlocked:[ids]}, set:{...},
- *    m:{sparks,spent,adsWatched,plus,removeAds,starter,owned:[],cosOwned:[],
+ *    m:{sparks,spent,adsWatched,removeAds,starter,owned:[],cosOwned:[],
  *       solutions:[],tx:[],firstLaunch,sessions,consent,interLast,sinceInter,
  *       instant:{day,n},free:{day,n}} }
  */
@@ -147,8 +147,8 @@ function mergeMeta(base, other, newer) {
   out.spent = num(b.spent);
   out.adsWatched = Math.max(num(b.adsWatched), num(o.adsWatched));
   out.sessions = Math.max(num(b.sessions), num(o.sessions));
-  out.plus = Boolean(b.plus || o.plus);
-  out.removeAds = Boolean(b.removeAds || o.removeAds || out.plus);
+  delete out.plus; // Plus no longer exists
+  out.removeAds = Boolean(b.removeAds || o.removeAds);
   out.starter = Boolean(b.starter || o.starter);
   for (const k of ["owned", "cosOwned", "solutions", "tx"]) out[k] = union(b[k], o[k]);
   const first = minBest(b.firstLaunch, o.firstLaunch);
