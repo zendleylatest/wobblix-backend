@@ -13,6 +13,9 @@ const jwt = require("jsonwebtoken");
 
 const PACKAGE = () => process.env.ANDROID_PACKAGE_NAME || "com.speckpro.wobblixgame.app";
 const BUNDLE = () => process.env.APPLE_BUNDLE_ID || "com.speckpro.wobblixgame.app";
+// Amazon SKUs are the shared product id with this prefix (for example
+// com.speckpro.wobblix.sparks_300). Google Play and the App Store use the bare id.
+const AMAZON_SKU_PREFIX = () => process.env.AMAZON_SKU_PREFIX ?? "com.speckpro.wobblix.";
 const GOOGLE_API = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
 
 function defaults() {
@@ -144,7 +147,7 @@ async function verifyAmazon({ productId, token, storeUserId }, d) {
     return fail(data?.message || `Amazon RVS ${res.status}`, !definitive);
   }
   const sku = data.productId || data.sku;
-  if (sku !== productId) return fail("Purchase is for a different product");
+  if (sku !== productId && sku !== `${AMAZON_SKU_PREFIX()}${productId}`) return fail("Purchase is for a different product");
   if (data.receiptId !== token) return fail("Receipt does not match");
   if (!["CONSUMABLE", "ENTITLED"].includes(data.productType)) return fail("Not a one-time purchase");
   if (data.cancelDate) return fail("Purchase was cancelled");

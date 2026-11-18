@@ -103,6 +103,19 @@ test("store verification: amazon checks sku and receipt", async () => {
   assert.equal((await verifyOneTimePurchase({ platform: "amazon", productId: "sparks_300", token: "r1" }, d)).ok, false);
 });
 
+test("store verification: amazon accepts the prefixed SKU, not another prefix", async () => {
+  const ok = await verifyOneTimePurchase(
+    { platform: "amazon", productId: "sparks_300", token: "r1", storeUserId: "u" },
+    fakeDeps({ amazonSku: "com.speckpro.wobblix.sparks_300" })
+  );
+  assert.equal(ok.ok, true);
+  const bad = await verifyOneTimePurchase(
+    { platform: "amazon", productId: "sparks_300", token: "r1", storeUserId: "u" },
+    fakeDeps({ amazonSku: "com.other.app.sparks_300" })
+  );
+  assert.equal(bad.ok, false);
+});
+
 test("guests cannot buy; bad requests are rejected", async () => {
   reset();
   c.hooks.verifyDeps = fakeDeps();
