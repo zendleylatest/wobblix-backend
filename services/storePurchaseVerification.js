@@ -13,8 +13,9 @@ const jwt = require("jsonwebtoken");
 
 const PACKAGE = () => process.env.ANDROID_PACKAGE_NAME || "com.speckpro.wobblixgame.app";
 const BUNDLE = () => process.env.APPLE_BUNDLE_ID || "com.speckpro.wobblixgame.app";
-// Amazon SKUs are the shared product id with this prefix (for example
-// com.speckpro.wobblix.sparks_300). Google Play and the App Store use the bare id.
+// Amazon SKUs and App Store product ids are the shared product id with this
+// prefix (for example com.speckpro.wobblix.sparks_300). Google Play uses the
+// bare id.
 const AMAZON_SKU_PREFIX = () => process.env.AMAZON_SKU_PREFIX ?? "com.speckpro.wobblix.";
 const GOOGLE_API = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
 
@@ -115,7 +116,9 @@ async function verifyIos({ productId, token }, d) {
   const tx = body.signedTransactionInfo ? jwt.decode(body.signedTransactionInfo) : null;
   if (!tx) return fail("App Store returned no transaction");
   if (tx.bundleId !== BUNDLE()) return fail("Purchase belongs to another app");
-  if (tx.productId !== productId) return fail("Purchase is for a different product");
+  if (tx.productId !== productId && tx.productId !== `${AMAZON_SKU_PREFIX()}${productId}`) {
+    return fail("Purchase is for a different product");
+  }
   if (tx.revocationDate) return fail("Purchase was refunded");
   return {
     ok: true,

@@ -129,3 +129,16 @@ test("notification: other apps and unknown transactions are left alone", async (
   assert.equal(await applyWobblixNotification("REFUND", { bundleId: "com.speckpro.wobblixgame.app", originalTransactionId: "9" }, deps), "unknown");
   assert.equal(await applyWobblixNotification("TEST", null, deps), "unknown");
 });
+
+test("ios: the prefixed App Store product id matches the shared id, another prefix does not", async () => {
+  const ok = await verifyOneTimePurchase(
+    { platform: "ios", productId: "remove_ads", token: "2000" },
+    appleDeps({ urls: [], tx: { productId: "com.speckpro.wobblix.remove_ads" } })
+  );
+  assert.equal(ok.ok, true);
+  const bad = await verifyOneTimePurchase(
+    { platform: "ios", productId: "remove_ads", token: "2000" },
+    appleDeps({ urls: [], tx: { productId: "com.other.remove_ads" } })
+  );
+  assert.equal(bad.ok, false);
+});
